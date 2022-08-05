@@ -1,0 +1,217 @@
+﻿@model WebUI.Models.Tasks
+@{
+    ViewData["Title"] = "Listado de Tareas";
+}
+
+<h1>Listado de Tareas</h1>
+
+<form asp-controller="Task" asp-action="Index">
+    <p>
+        <hr/>
+        <div class="row">
+            <div class="col-2">
+                <div class="form-group">
+                    <label asp-for="IdCollaborator" class="control-label">Colaborador</label>
+                    <select asp-for="IdCollaborator" class="form-control" >
+                    @{
+                        foreach(var item in ViewBag.Collaborator)
+                        {
+                                    <option value="@item.IdCollaborator">@item.CollaboratorName</option>
+                        }
+                    }
+                    </select>
+                    <span asp-validation-for="IdCollaborator" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-2">
+                <div class="form-group">
+                    <label asp-for="Priority" class="control-label">Prioridad</label>
+                    <select asp-for="Priority" class="form-control">
+                    @{
+                        foreach(var item in ViewBag.Priorities)
+                        {
+                                    <option value="@item.PriorityData">@item.PriorityData</option>
+                        }
+                    }
+                    </select>
+                    <span asp-validation-for="Priority" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-2">
+                <div class="form-group">
+                    <label asp-for="Status" class="control-label">Estado</label>
+                    <select  asp-for="Status" class="form-control">
+                    @{
+                        foreach(var item in ViewBag.Status)
+                        {
+                                    <option value="@item.StatusData">@item.StatusData</option>
+                        }
+                    }
+                    </select>
+                    <span asp-validation-for="Status" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-2">
+                <div class="form-group">
+                    <label asp-for="FromDate" class="control-label">Fecha Inicial</label>
+                    @*<input asp-for="FromDate" class="form-control" />*@
+                    @Html.TextBoxFor(m => m.FromDate, "{0:dd/MM/yyyy}", new { @class = "form-control", @placeholder = "dd/mm/yyyy" })
+                    <span asp-validation-for="FromDate" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-2">
+                <div class="form-group">
+                    <label asp-for="ToDate" class="control-label">Fecha Final</label>
+                    @Html.TextBoxFor(m => m.ToDate, "{0:dd/MM/yyyy}", new { @class = "form-control", @placeholder = "dd/mm/yyyy" })
+                    <span asp-validation-for="ToDate" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="col-2">
+                 <div class="form-group">
+                    <label class="control-label"></label>
+                    <div class="d-flex">
+                    <input type="submit" value="Filtrar" class="form-control btn btn-sm btn-primary"/> &nbsp;
+                    <input onclick="quitarFiltro()"  value="Quitar filtro" class="form-control btn btn-sm btn-secondary"/>  
+
+                    </div>
+              
+                </div>  
+            </div>
+        </div>
+    </p>
+</form>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                Id
+            </th>
+            <th>
+                Descripción
+            </th>
+            <th>
+                Nombre Colaborador
+            </th>
+            <th>
+                Prioridad
+            </th>
+            <th>
+                Estado
+            </th>
+            <th>
+                Fecha Inicial
+            </th>
+            <th>
+                Fecha Final
+            </th>
+            <th>
+                <a asp-action="Insert" class="btn btn-success" title="Crear nueva tarea"><i class="fa-regular fa-square-plus"></i>  Nueva tarea</a> 
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+    @if (ViewBag.TasksResults != null)
+    {
+        @foreach (var item in ViewBag.TasksResults) {
+        <tr>
+            <td>
+                @item.IdTask
+            </td>
+            <td>
+                @item.Description
+            </td>
+            <td>
+                @item.CollaboratorName
+            </td>
+            <td>
+                @item.Priority
+            </td>
+            <td>
+                @item.Status
+            </td>
+            <td>
+                @item.FromDate.ToString("dd-MM-yyyy")
+            </td>
+            <td>
+                @item.ToDate.ToString("dd-MM-yyyy")
+            </td>
+            <td>
+                <a onclick="editValidate(@item.IdTask,'@item.Status')" class="btn btn-primary" title="Editar"><i class="fa-regular fa-pen-to-square"></i></a>  
+                <a asp-action="Details" class="btn btn-info" asp-route-id="@item.IdTask" title="Ver Detalles"><i class="fa-regular fa-eye"></i></a> 
+                <a onclick="deleteConfirm(@item.IdTask,'@item.Status')" class="btn btn-danger" title="Eliminar"><i class="fa-regular fa-trash-can"></i></a>
+            </td>
+        </tr>
+    }
+}  
+        <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="mySmallModalLabel" aria-hidden="true" id="confirmation-modal">
+            <div class="modal-dialog ">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Advertencia</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="modalMessage"></p>
+                    </div>
+                    <div class="modal-footer">
+                        <a asp-action="Delete" class="btn btn-danger" id="modal-btn-si" asp-route-id="">Si</a>
+                        <a asp-action="" class="btn btn-primary" id="modal-btn-no" asp-route-id="">No</a> 
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="message-modal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Error</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p id="error-message">@ViewBag.ErrorMessage</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Ok</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </tbody>
+</table>
+<script type="text/javascript" >
+
+    function quitarFiltro() {
+        location.href = "";
+    }
+    function deleteConfirm(id, status)
+    {
+        if (status == "EN PROCESO") {
+            $("#error-message").text("Solo se puede eliminar tareas siempre y cuando no esté EN PROCESO");
+            $("#message-modal").modal('show');
+        }
+        else {
+            $("#modalMessage").text("¿Está seguro que desea eliminar la tarea #"+id+" ?");
+            $("#confirmation-modal").modal('show');
+            var newhref=$("#modal-btn-si").attr('href') + '/' + id ;     
+            $("#modal-btn-si").attr("href", newhref);
+            $("#modal-btn-no").on("click", function(){
+                $("#confirmation-modal").modal('hide');
+            });
+        }
+    }
+    function editValidate(id, status)
+    {
+        if (status == "FINALIZADA") {
+            $("#error-message").text("Solo se puede editar tareas PENDIENTES o EN PROCESO");
+            $("#message-modal").modal('show');
+        }
+        else {
+            location.href = "Task/Edit/" + id;
+        }
+    }
+            
+</script>

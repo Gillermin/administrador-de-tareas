@@ -1,0 +1,100 @@
+﻿@model WebUI.Models.Tasks
+
+@{
+    ViewData["Title"] = "Editar";
+    
+}
+
+<h1>Editar</h1>
+
+<h4>Tarea # @Model.IdTask</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Edit">
+            @Html.Hidden("IdTask")
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+             <div class="form-group">
+                <label asp-for="Description" class="control-label">Descripción</label>
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="IdCollaborator" class="control-label">Colaborador</label>
+                <select asp-for="IdCollaborator" class="form-control" >
+                    @{
+                        foreach(var item in ViewBag.Collaborator)
+                        {
+                            <option value="@item.IdCollaborator">@item.CollaboratorName</option>    
+                        }
+                    }
+                }
+                </select>
+                <span asp-validation-for="IdCollaborator" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Priority" class="control-label">Prioridad</label>
+                <select asp-for="Priority" class="form-control">
+                @{
+                    foreach(var item in ViewBag.Priorities)
+                    {
+                        <option value="@item.PriorityData">@item.PriorityData</option>
+                    }
+                }
+                </select>
+                <span asp-validation-for="Priority" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Status" class="control-label">Estado</label>
+                <select asp-for="Status" class="form-control">
+                @{
+                    foreach(var item in ViewBag.Status)
+                    {
+                        <option value="@item.StatusData">@item.StatusData</option>
+                    }
+                }
+                </select>
+                <span asp-validation-for="Status" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="FromDate" class="control-label">Fecha Inicial</label>
+                @Html.TextBoxFor(m => m.FromDate, "{0:dd/MM/yyyy}", new { @class = "form-control", @placeholder = "dd/mm/yyyy" })
+                <span asp-validation-for="FromDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ToDate" class="control-label">Fecha Final</label>
+                @Html.TextBoxFor(m => m.ToDate, "{0:dd/MM/yyyy}", new { @class = "form-control", @placeholder = "dd/mm/yyyy"})
+                <span asp-validation-for="ToDate" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Notes" class="control-label">Notas</label>
+                <input asp-for="Notes" class="form-control" />
+                <span asp-validation-for="Notes" class="text-danger"></span>
+            </div>
+            </br>
+            <div class="form-group">
+                <input type="submit" value="Guardar" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+<div class="modal fade" tabindex="-1" role="dialog" aria-hidden="true" id="message-modal">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Error</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="error-message">@ViewBag.ErrorMessage</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div>
+    </br>
+    <a asp-action="Index">Atrás</a>
+</div>
